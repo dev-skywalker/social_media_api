@@ -28,6 +28,6 @@ async function bootstrap() {
   // Validation using Zod
   app.useGlobalPipes(new ZodValidationPipe());
 
-  await app.listen(process.env.PORT ?? 8080);
+  await app.listen(8080,'0.0.0.0');
 }
 bootstrap();
