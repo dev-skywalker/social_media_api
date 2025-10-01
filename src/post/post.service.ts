@@ -116,4 +116,12 @@ export class PostService {
       return { status: 'liked' };
     }
   }
+
+  async deletePost(userId: number, postId: number) {
+    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.userId !== userId) throw new ForbiddenException('Access denied');
+
+    return this.prisma.post.delete({ where: { id: postId } });
+  }
 }

@@ -13,11 +13,15 @@ import {
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    
+
     new FastifyAdapter(),
   );
-  //Enable Cors 
-  app.enableCors();
+  //Enable Cors
+  app.enableCors({
+    origin: ['http://localhost:3000', 'https://social-api.pyaesone.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true,
+  });
   //Register Multipart
   app.register(fastifyMultipart);
   // Serve static files from the 'uploads' directory

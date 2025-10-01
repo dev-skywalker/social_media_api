@@ -10,6 +10,7 @@ import {
   Get,
   Query,
   BadRequestException,
+  Delete,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -151,5 +152,10 @@ export class PostController {
     @Body() dto: CreateReactionDto,
   ) {
     return this.postService.toggleReaction(req.user.id, postId);
+  }
+
+  @Delete(':postId')
+  deletePost(@Req() req, @Param('postId', ParseIntPipe) postId: number) {
+    return this.postService.deletePost(req.user.id, postId);
   }
 }
