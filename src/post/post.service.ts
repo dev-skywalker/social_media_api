@@ -40,12 +40,28 @@ export class PostService {
   }
 
   async getMyPosts(userId: number, page: number, limit: number) {
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       where: { userId },
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { createdAt: 'desc' },
+      include: {
+        author: {
+          select: { id: true, name: true },
+        },
+        comments: {
+          select:{id:true,content:true,createdAt:true,userId:true,postId:true, author:true}
+        },
+        _count: {
+          select: { comments: true, reactions: true },
+        },
+      },
     });
+    return posts.map((post) => ({
+      ...post,
+      reaction_count: post._count.reactions,
+      comment_count: post._count.comments,
+    }));
   }
 
   async getAllPosts(page: number, limit: number) {
