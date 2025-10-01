@@ -57,7 +57,9 @@ export class PostService {
         author: {
           select: { id: true, name: true },
         },
-        comments: true,
+        comments: {
+          select:{id:true,content:true,createdAt:true,userId:true,postId:true, author:true}
+        },
         _count: {
           select: { comments: true, reactions: true },
         },
