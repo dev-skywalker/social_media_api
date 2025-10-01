@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Get,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -27,43 +28,93 @@ export class PostController {
   constructor(private postService: PostService) {}
 
   @Post()
-  async createPost(@Req() req, @Body() dto: CreatePostDto) {
+  async createPost(@Req() req) {
     let imagePath: string | undefined;
+    let title: string;
+    let content: string;
+
     if (req.isMultipart()) {
-      const data = await req.file();
-      if (data) {
-        const uploadsDir = join(process.cwd(), 'uploads');
-        await fs.mkdir(uploadsDir, { recursive: true });
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const filename = `${uniqueSuffix}-${data.filename}`;
-        imagePath = `/uploads/${filename}`;
-        const buffer = await data.toBuffer();
-        await fs.writeFile(join(uploadsDir, filename), buffer);
+      const parts = req.parts();
+      const fields: Record<string, string> = {};
+
+      for await (const part of parts) {
+        if (part.type === 'file') {
+          const uploadsDir = join(process.cwd(), 'uploads');
+          await fs.mkdir(uploadsDir, { recursive: true });
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const filename = `${uniqueSuffix}-${part.filename}`;
+          imagePath = `/uploads/${filename}`;
+          const buffer = await part.toBuffer();
+          await fs.writeFile(join(uploadsDir, filename), buffer);
+        } else {
+          // Collect form fields
+          fields[part.fieldname] = (part as any).value;
+        }
       }
+
+      title = fields.title;
+      content = fields.content;
+    } else {
+      // Handle JSON request
+      const body = req.body as CreatePostDto;
+      title = body.title;
+      content = body.content;
     }
-    return this.postService.createPost(req.user.id, dto, imagePath);
+
+    if (!title || !content) {
+      throw new BadRequestException('Title and content are required');
+    }
+
+    return this.postService.createPost(
+      req.user.id,
+      { title, content },
+      imagePath,
+    );
   }
 
   @Put(':postId')
   async updatePost(
     @Req() req,
     @Param('postId', ParseIntPipe) postId: number,
-    @Body() dto: UpdatePostDto,
   ) {
     let imagePath: string | undefined;
+    let title: string | undefined;
+    let content: string | undefined;
+
     if (req.isMultipart()) {
-      const data = await req.file();
-      if (data) {
-        const uploadsDir = join(process.cwd(), 'uploads');
-        await fs.mkdir(uploadsDir, { recursive: true });
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const filename = `${uniqueSuffix}-${data.filename}`;
-        imagePath = `/uploads/${filename}`;
-        const buffer = await data.toBuffer();
-        await fs.writeFile(join(uploadsDir, filename), buffer);
+      const parts = req.parts();
+      const fields: Record<string, string> = {};
+
+      for await (const part of parts) {
+        if (part.type === 'file') {
+          const uploadsDir = join(process.cwd(), 'uploads');
+          await fs.mkdir(uploadsDir, { recursive: true });
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const filename = `${uniqueSuffix}-${part.filename}`;
+          imagePath = `/uploads/${filename}`;
+          const buffer = await part.toBuffer();
+          await fs.writeFile(join(uploadsDir, filename), buffer);
+        } else {
+          // Collect form fields
+          fields[part.fieldname] = (part as any).value;
+        }
       }
+
+      title = fields.title;
+      content = fields.content;
+    } else {
+      // Handle JSON request
+      const body = req.body as UpdatePostDto;
+      title = body.title;
+      content = body.content;
     }
-    return this.postService.updatePost(req.user.id, postId, dto, imagePath);
+
+    return this.postService.updatePost(
+      req.user.id,
+      postId,
+      { title, content },
+      imagePath,
+    );
   }
 
   @Get('/my-posts')
