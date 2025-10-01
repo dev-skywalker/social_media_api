@@ -59,7 +59,8 @@ export class PostController {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const filename = `${uniqueSuffix}-${data.filename}`;
         imagePath = `/uploads/${filename}`;
-        await fs.writeFile(join(uploadsDir, filename), data.file);
+        const buffer = await data.toBuffer();
+        await fs.writeFile(join(uploadsDir, filename), buffer);
       }
     }
     return this.postService.updatePost(req.user.id, postId, dto, imagePath);
