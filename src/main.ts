@@ -18,7 +18,7 @@ async function bootstrap() {
   );
   //Enable Cors
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://social-api.pyaesone.com'],
+    origin: ['http://localhost:3000', 'https://social-api.pyaesone.com', 'https://social.pyaesone.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
   });
