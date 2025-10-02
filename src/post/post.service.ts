@@ -47,10 +47,14 @@ export class PostService {
       orderBy: { createdAt: 'desc' },
       include: {
         author: {
-          select: { id: true, name: true },
+          select: { id: true, name: true,email:true,createdAt:true },
         },
         comments: {
-          select:{id:true,content:true,createdAt:true,userId:true,postId:true, author:true}
+          select:{id:true,content:true,createdAt:true,userId:true,postId:true, author:{
+              select:{
+                id:true,name:true,email:true,createdAt:true 
+              }
+            }}
         },
         _count: {
           select: { comments: true, reactions: true },
@@ -71,10 +75,15 @@ export class PostService {
       orderBy: { createdAt: 'desc' },
       include: {
         author: {
-          select: { id: true, name: true },
+          select: { id: true, name: true ,email:true,createdAt:true },
         },
         comments: {
-          select:{id:true,content:true,createdAt:true,userId:true,postId:true, author:true}
+          select:{
+            id:true,content:true,createdAt:true,userId:true,postId:true, author:{
+              select:{
+                id:true,name:true,email:true,createdAt:true 
+              }
+            }}
         },
         _count: {
           select: { comments: true, reactions: true },
