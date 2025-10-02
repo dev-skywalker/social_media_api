@@ -44,7 +44,8 @@ export class PostController {
           await fs.mkdir(uploadsDir, { recursive: true });
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const filename = `${uniqueSuffix}-${part.filename}`;
-          imagePath = `/uploads/${filename}`;
+          const baseUrl = process.env.API_URL || 'https://social-api.pyaesone.com';
+          imagePath = `${baseUrl}/uploads/${filename}`;
           const buffer = await part.toBuffer();
           await fs.writeFile(join(uploadsDir, filename), buffer);
         } else {
@@ -92,7 +93,8 @@ export class PostController {
           await fs.mkdir(uploadsDir, { recursive: true });
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const filename = `${uniqueSuffix}-${part.filename}`;
-          imagePath = `/uploads/${filename}`;
+          const baseUrl = process.env.API_URL || 'https://social-api.pyaesone.com';
+          imagePath = `${baseUrl}/uploads/${filename}`;
           const buffer = await part.toBuffer();
           await fs.writeFile(join(uploadsDir, filename), buffer);
         } else {
